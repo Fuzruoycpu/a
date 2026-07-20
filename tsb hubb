@@ -1,0 +1,910 @@
+local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))() 
+--local WindUI = loadfile('fuz codes/main.lua')()
+
+local TweenService = game:GetService("TweenService")
+local vim = game:GetService("VirtualInputManager")
+local Debris = game:GetService("Debris")
+
+local ply = game.Players.LocalPlayer
+
+local tcanthrowdetected = false
+local antideathcounter = false
+local blockdodgeToggle = false
+local emoteDashToggle = false
+local hitmarkerToggle = false
+local tcanboostToggle = false
+local dashboostToggle = false
+local m1resetToggle = false
+local StrikeToggle = false
+local adtoggle = false
+local datoggle = false
+local mrtoggle = false
+local aded = false
+
+local attributeconnection = nil
+local hrpChildAddedCon = nil
+local animconnection = nil
+local dashConnection=nil
+local deathcounter = nil
+local stoppedCon=nil
+local chrCon=nil
+local con1=nil
+local con2=nil
+local con3=nil
+local con4=nil
+
+local tcanboostpower = 750
+local dashboostpower = 165
+local dwait = 0.1
+local addY = 1.5
+local dd = 150
+local idk = 1
+local targetAnimations = {
+	["rbxassetid://10479335397"] = true,
+	["rbxassetid://13380255751"] = true
+}
+local anims = {
+	[1] = "rbxassetid://78339272602733",
+	[2] = "rbxassetid://134711731729986",
+	[3] = "rbxassetid://92546791251633",
+	[4] = "rbxassetid://109088632860488",
+}
+local hitmarkgui = Instance.new("BillboardGui")
+local hitmarkimage = Instance.new("ImageLabel")
+hitmarkimage.Image = "rbxassetid://113750946560821"
+hitmarkimage.BackgroundTransparency = 1.000
+hitmarkimage.Size = UDim2.new(1, 0, 1, 0)
+hitmarkgui.Size = UDim2.new(0, 75, 0, 75)
+hitmarkgui.LightInfluence = 1.000
+hitmarkimage.BorderSizePixel = 0
+hitmarkimage.Parent = hitmarkgui
+hitmarkgui.AlwaysOnTop = true
+hitmarkimage.Active = true
+hitmarkgui.Active = true
+
+local Bolt = Instance.new("Part")
+Bolt.CanCollide = false
+Bolt.CanTouch = false
+Bolt.CanQuery = false
+
+Bolt.Material = Enum.Material.Neon
+Bolt.CastShadow = false
+
+Bolt.Anchored = true
+
+workspace:SetAttribute('RoundOngoing', false)
+workspace:SetAttribute('VIPServerOwner',ply.Name)
+workspace:SetAttribute('VIPServer',ply.UserId)
+
+function Tween(...)
+	return TweenService:Create(...):Play()
+end
+
+function notify(title,content,duration)
+    WindUI:Notify({
+        Title = title,
+        Content = content,
+        Duration = duration,
+        Icon = 'info',
+    })
+end
+function loadanim(animId)
+	local anim = Instance.new("Animation")
+	anim.AnimationId=animId
+	
+	return ply.Character.Humanoid:LoadAnimation(anim)
+end
+local function playsound(soundId)
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://" .. soundId
+    sound.Parent = workspace
+    sound:Play()
+    sound.Ended:Connect(function()
+        sound:Destroy()
+    end)
+end
+
+function decode(inputString)
+	if inputString=="" or inputString==nil then return nil else
+		local parts = {}
+		for part in string.gmatch(inputString, "([^;]+)") do
+			table.insert(parts, part)
+		end
+		return parts[1]
+	end
+end
+function sdc(at:animationTrack,side:boolean)
+	if ply.Character.Humanoid.FloorMaterial~=Enum.Material.Air then ply.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end
+	wait(.02)
+	at:Stop()
+	local hrp=ply.Character.HumanoidRootPart
+	local part = Instance.new("Part",workspace)
+	part.Anchored = true
+	part.CanCollide = false
+	part.Transparency = 1
+	if side then
+		part.CFrame = hrp.CFrame * CFrame.new(40,0,0)
+	else
+		part.CFrame = hrp.CFrame * CFrame.new(-40,0,0)
+	end
+	local hy=hrp.AssemblyLinearVelocity.Y
+	hrp.AssemblyLinearVelocity = (part.Position-hrp.Position).Unit*Vector3.new(dd,0,dd)
+	hrp.AssemblyLinearVelocity=Vector3.new(hrp.AssemblyLinearVelocity.X, hy, hrp.AssemblyLinearVelocity.Z)
+	part:Destroy()
+end 
+function fDash()
+    local ply = ply.Character
+    local chr = ply:GetAttribute("Character")
+    local hrp = ply:FindFirstChild("HumanoidRootPart")
+    local h = ply:FindFirstChild("Humanoid")
+    if hrp and h then
+        local target=ply:GetAttribute("LastM1Hitted")
+        aded=true
+        local fp = Instance.new("Part",workspace)
+        fp.Anchored=true
+        fp.CanCollide = false
+        fp.Transparency = 1
+        local anim = Instance.new("Animation")
+        anim.AnimationId = "rbxassetid://10480793962"
+
+        local attach = Instance.new("Attachment",hrp)
+
+        local LinearVelocity = Instance.new("LinearVelocity",attach)
+
+        local part = Instance.new("Part",workspace)
+        part.Anchored = true
+        part.CanCollide = false
+        part.Transparency = 0
+        if chr=="Ninja" then
+            part.CFrame = hrp.CFrame * CFrame.new(40,0,0)
+            fp.CFrame = hrp.CFrame * CFrame.new(40,0,0)
+        else
+            part.CFrame = hrp.CFrame * CFrame.new(30,0,0)
+            fp.CFrame = hrp.CFrame * CFrame.new(30,0,0)
+        end
+        local animplay:AnimationTrack = h:LoadAnimation(anim)
+        animplay:Play(0,10,1)
+
+        LinearVelocity.MaxForce = 9999999
+        LinearVelocity.VectorVelocity = (part.Position-hrp.Position).Unit*Vector3.new(150,0,150)
+        LinearVelocity.Attachment0 = attach
+        task.wait(0.15)
+        attach:Destroy()
+        part:Destroy()
+        LinearVelocity:Destroy()
+        aded=false
+        wait(.05)
+        ply.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,0,0)
+        ply.HumanoidRootPart.CFrame=fp.CFrame*CFrame.Angles(0,math.rad(80),0)
+        fp:Destroy()
+        task.wait(0.05)
+        vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+        vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+        local look = decode(target)
+        if look ~=nil then
+            local vp1 = workspace.Live:FindFirstChild(look)
+            vp1=vp1.PrimaryPart
+            for i = 1, 100 do
+                hrp.CFrame = CFrame.lookAt(hrp.Position,Vector3.new(vp1.Position.X,hrp.Position.Y,vp1.Position.Z))
+                task.wait()
+            end
+        end
+    end
+end
+function lookUp(hrp:BasePart,thrp:BasePart)
+	local absxz = math.abs((hrp.Position - thrp.Position).Magnitude)
+	if absxz>=idk and absxz < 12.5 then
+        hrp.CFrame =CFrame.lookAt(hrp.Position,Vector3.new(thrp.Position.X,hrp.Position.Y+addY,thrp.Position.Z))
+	elseif math.abs(hrp.Position.Y-thrp.Position.Y)>8 then
+		hrp.Velocity-=Vector3.new(0,5,0)
+	end
+end
+
+function aimbotanim(at:AnimationTrack)
+	local waitmore = false
+	if not datoggle then return end
+	local animId = at.Animation.AnimationId
+	if animId == "rbxassetid://12296113986" then--water guy move 2
+		vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+		con1 = at:GetMarkerReachedSignal("finalslam"):Connect(function()
+			task.wait(0.05)
+			vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+			vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+			vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+		end)
+	end
+	if animId == "rbxassetid://95034083206292" then
+		vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+		waitmore=true
+		con2=at:GetMarkerReachedSignal("slam"):Connect(function()
+			task.wait(0.05)
+			ply.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			for i=1,25 do 
+				vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+				vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+				task.wait(0.01)
+			end				
+			vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+			con2:Disconnect()
+		end)
+	end
+	if animId == "rbxassetid://10503381238" and adtoggle then--upper cut
+		con3=at:GetMarkerReachedSignal("hitreg"):Connect(function()
+			task.wait()
+			vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+			vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+			con3:Disconnect()
+		end)
+	end
+	if animId == "rbxassetid://94638356008696" then--monster water guy move 3
+		vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+		local slam = 0
+		con4=at:GetMarkerReachedSignal("slam"):Connect(function()
+			slam+=1 
+            if slam<3 then return end
+			task.wait(0.05)
+			for i=1,2 do 
+				ply.Character.Humanoid.JumpPower=75
+				ply.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+				task.wait()
+			end
+			for i=1,25 do 
+				vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+				vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+				task.wait(0.01)
+			end				
+			con4:Disconnect()
+			vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+		end)
+	end
+	if targetAnimations[animId] then
+		local att=ply.Character:GetAttribute("LastM1Hitted")
+		if att==nil or att=="" then return end
+		local mat=decode(att)
+		local target=workspace.Live:FindFirstChild(mat)
+		if waitmore then
+			task.wait(math.random(4,10)/10)
+		end
+		task.wait(tonumber(dwait))
+		for i,v in pairs(target:GetDescendants()) do
+			if v:IsA("Part") then
+				v.CanCollide=false
+			end
+		end
+		workspace.Gravity=100
+		local hrp=ply.Character.HumanoidRootPart
+        if dashConnection then
+            dashConnection:Disconnect()
+        end
+		dashConnection = game:GetService("RunService").RenderStepped:Connect(function()
+			if target:FindFirstChild("Ragdoll") then
+				lookUp(hrp,target.HumanoidRootPart)
+			end
+		end)
+
+		stoppedCon = at.Stopped:Connect(function()
+			if dashConnection then
+				dashConnection:Disconnect()
+				workspace.Gravity=192.8
+			end
+            if con1 then
+				con1:Disconnect()
+			end
+			if con2 then
+				con2:Disconnect()
+			end
+            if con3 then
+                con3:Disconnect()
+            end
+			if con4 then
+				con4:Disconnect()
+			end
+			if target:FindFirstChild("Torso") then
+				target.Torso.CanCollide=true
+			end
+            stoppedCon:disconnect()
+		end)
+		
+	end
+end
+function LightningStrike(ply)
+	
+	local hrp:Part=workspace.Live:FindFirstChild(ply)
+	if not hrp then return nil end
+	hrp= hrp:FindFirstChild('HumanoidRootPart')
+	if not hrp then return nil end
+
+	local Start = hrp.Position-Vector3.new(0,3,0)
+	local End = hrp.Position+Vector3.new(0,500,0)
+	local Points = 10
+
+	local Offset = 20
+	local DelayTime = 0
+	local BoltTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out);
+
+	local Width0 = 2
+	local Width1 = 0
+
+	local Trans0 = 0
+	local Trans1 = 0
+
+	local Duration = 0.25
+
+	local Colors = {Color3.fromRGB(100, 200, 255)}
+	local EndColors = {Color3.fromRGB(200, 255, 255)}
+
+	local ColorsAffectWholeBolt = true
+	local BoltColorStatic = false
+
+	local Bolt = Bolt:Clone()
+
+	local BoltParent = Instance.new("Model", workspace)
+
+	--- Main ---
+
+	local SegmentPoints = {
+		[0] = Start
+	}
+
+	local SegmentDistance = (End - Start) / Points
+	local LastPosition = Start
+
+	local StartSegmentPart = Bolt:Clone()
+
+	StartSegmentPart.Transparency = 1
+	StartSegmentPart.Parent = BoltParent
+	StartSegmentPart.Position = LastPosition
+	Debris:AddItem(StartSegmentPart, 0.1)
+	Debris:AddItem(BoltParent, Duration+(Points*DelayTime))
+
+	for i = 1,Points do
+		local Position = (i == Points and End) or (LastPosition + SegmentDistance)
+		local Offset = CFrame.new(Vector3.new(Random.new():NextNumber(-Offset, Offset), Random.new():NextNumber(-Offset, Offset), 0))
+
+		local NewPosition = Position+Offset.Position
+
+		LastPosition = Position
+		SegmentPoints[i] = (i == Points and End) or NewPosition
+	end
+
+	local BaseRandomColor = Colors[math.random(1, #Colors)]
+	local BaseRandomColorEnd = EndColors[math.random(1, #EndColors)]
+
+	for i = 1,Points do
+		local PreviousPoint: Vector3 = SegmentPoints[i-1]
+		local NextPoint: Vector3 = SegmentPoints[i]
+
+		local Distance = (PreviousPoint - NextPoint).Magnitude
+
+		local Segment = Bolt:Clone()
+		Segment.Parent = BoltParent		
+		Segment.CFrame = CFrame.lookAt(PreviousPoint, NextPoint)*CFrame.new(Vector3.new(0,0,-Distance/2))
+		Segment.Color = (ColorsAffectWholeBolt and BaseRandomColor) or Colors[math.random(1, #Colors)]
+		Segment.Transparency = Trans0
+
+		Segment.Size = Vector3.new(Width0, Width0, Distance)
+		Tween(Segment, BoltTweenInfo, {Size = Vector3.new(Width1, Width1, Distance), Transparency = Trans1})
+		if not BoltColorStatic then Tween(Segment, TweenInfo.new(Duration, Enum.EasingStyle.Linear), {Color = (ColorsAffectWholeBolt and BaseRandomColorEnd) or EndColors[math.random(1, #EndColors)]}) end
+
+		if DelayTime > 0 then
+			task.wait(DelayTime)
+		end
+
+		Debris:AddItem(Segment, Duration)
+	end
+
+end
+function chrloaded(chr)
+    if chr:GetAttribute("Character")=="Monster" then
+    	dd=145
+    elseif chr:GetAttribute("Character")=="Bald" then
+    	dd=125
+    else
+    	dd=135
+    end
+    if animconnection then
+        animconnection:Disconnect()
+    end
+	if attributeconnection then
+		attributeconnection:Disconnect()
+	end
+	if hrpChildAddedCon then
+		hrpChildAddedCon:Disconnect()
+	end
+    animconnection = chr.Humanoid.AnimationPlayed:Connect(function(at: AnimationTrack)
+    	aimbotanim(at)
+		local animId = at.Animation.AnimationId
+    	if animId == "rbxassetid://10480796021" then 
+    		if mrtoggle and emoteDashToggle and not aded then 
+                sdc(at,false)
+            end
+    	elseif animId == "rbxassetid://10480793962" then 	
+            if mrtoggle and emoteDashToggle and not aded then
+    		    sdc(at,true)
+            end
+    	elseif animId=='rbxassetid://13813955149' and tcanboostToggle then
+			tcanthrowdetected=true
+			at.Stopped:Connect(function()
+				tcanthrowdetected=false
+			end)
+			while task.wait() do
+				if not tcanthrowdetected then break end
+				game.RunService.Heartbeat:Wait()
+				local character = chr
+				local root = chr.HumanoidRootPart
+				local vel, movel = nil, 0.1
+
+				vel = ((root.CFrame*CFrame.new(0,0,200)).Position-root.Position).Unit
+				root.Velocity = vel * -tcanboostpower
+
+				game.RunService.RenderStepped:Wait()
+				if character and character.Parent and root and root.Parent then
+					root.Velocity = vel
+				end
+
+				game.RunService.Stepped:Wait()
+				if character and character.Parent and root and root.Parent then
+					root.Velocity = vel + Vector3.new(0, movel, 0)
+					movel = movel * -1
+				end
+			end
+		elseif at.Animation.AnimationId=='rbxassetid://11343250001' and antideathcounter then
+			at:Stop()
+			local hrp=chr.HumanoidRootPart
+			local pos=hrp.CFrame
+			task.wait(3)
+			for a=1,75 do task.wait()
+			hrp:PivotTo(CFrame.new(0, workspace.FallenPartsDestroyHeight+1, 0)*CFrame.Angles(math.rad(90),0,0))
+			hrp.Velocity=Vector3.new(0, 0, 0)
+			end
+			task.wait(0.5)
+			hrp.CFrame=pos
+			workspace.CurrentCamera:Destroy()
+			task.wait(0.1)
+			workspace.CurrentCamera.CameraSubject = chr:FindFirstChildWhichIsA('Humanoid')
+			workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+			ply.CameraMinZoomDistance = 0.5
+			ply.CameraMaxZoomDistance = 400
+			ply.CameraMode = "Classic"
+			ply.PlayerGui.Death:Destroy()
+			chr:FindFirstChild("NoRotateUltimate"):Destroy()
+			chr:FindFirstChild("NoRotate"):Destroy()
+		end
+    end)
+	attributeconnection = chr.AttributeChanged:Connect(function(attr)
+		if attr=='StrongerM1' and blockdodgeToggle then
+			local att = chr:GetAttribute("StrongerM1")
+			if att == false then return end
+			if chr:FindFirstChild('M1ing')then return end
+			loadanim(anims[math.random(1, 4)]):Play()
+		end
+		if attr=='LastM1Hitted' then
+			local a=decode(chr:GetAttribute('LastM1Hitted'))
+			a=workspace.Live:FindFirstChild(a)
+			if hitmarkerToggle then
+			local cgui = hitmarkgui:Clone()
+			cgui.Parent=a.Head
+			playsound(125235091454234)
+			task.wait(0.1)
+			cgui:Destroy()
+			end
+			if StrikeToggle then
+				LightningStrike(a.Name)
+			end
+		end
+	end)
+	hrpChildAddedCon = chr.HumanoidRootPart.ChildAdded:Connect(function(part)
+		if part.Name=='moveme' and part:IsA("BodyVelocity") then
+			if not dashboostToggle then return end
+			part:SetAttribute('Speed',dashboostpower)
+		end
+	end)
+end
+chrloaded(ply.Character)
+chrCon = ply.CharacterAdded:Connect(function(chr)
+	task.wait(0.25)
+	chrloaded(chr)
+end)
+---------------------------------------------------------------
+
+local Window = WindUI:CreateWindow({
+	Title = "sigma",
+	Icon = "door-open", -- lucide icon
+	Author = "by fuzruoycpu",
+	Folder = "zip",
+	User = {
+		Enabled = true,
+		Anonymous = false,
+		Callback = function()
+			print("clicked")
+		end,
+	},
+    })
+Window:SetToggleKey(Enum.KeyCode.RightControl)
+
+Window:EditOpenButton({
+	Title = "Open",
+	Icon = "monitor",
+	CornerRadius = UDim.new(0, 16),
+	StrokeThickness = 2,
+	Color = ColorSequence.new( -- gradient
+		Color3.fromHex("FF0F7B"),
+		Color3.fromHex("F89B29")
+	),
+	OnlyMobile = false,
+	Enabled = true,
+	Draggable = true,
+})
+local M1resetTab = Window:Tab({
+	Title = "M1reset",
+	Icon = "unlink-2", -- optional
+	Locked = false,
+})
+M1resetTab:Select()
+
+local MRtogKeybind = M1resetTab:Keybind({
+	Title = "Toggle Keybind",
+	Desc = "Keybind to Toggle",
+	Value = "E",
+	Callback = function(v)
+		mrtoggle = not mrtoggle
+    	if mrtoggle then
+		WindUI:Notify({
+    		Title = "Toggled M1 reset",
+			Content = "Enabled",
+    		Duration = 1, -- seconds
+    		Icon = "circle-alert",
+		})
+		else
+		WindUI:Notify({
+    		Title = "Toggled M1 reset",
+			Content = "Disabled",
+    		Duration = 1,
+    		Icon = "info",
+		})
+		end
+	end,
+})
+local edToggle = M1resetTab:Toggle({
+    Title = "Emote dash Toggle",
+    Desc = "Toggle",
+    Icon = "check",
+    Type = "Checkbox",
+    Value = true, -- default value
+    Callback = function(state) 
+        emoteDashToggle = state
+    end
+})
+
+local MRtogKeybind = M1resetTab:Keybind({
+	Title = "m1 reset Keybind",
+	Desc = "Keybind to m1 reset",
+	Value = "C",
+	Callback = function(v)
+		if m1resetToggle and mrtoggle then
+			fDash()
+			WindUI:Notify({
+				Title = "M1 reset",
+				Content = "",
+				Duration = 1,
+				Icon = "circle-alert",
+			})
+		end
+	end,
+})
+local m1resetTog = M1resetTab:Toggle({
+    Title = "M1 reset Toggle",
+    Desc = "Toggle",
+    Icon = "check",
+    Type = "Checkbox",
+    Value = true, -- default value
+    Callback = function(state) 
+        m1resetToggle = state
+    end
+})
+
+local daTab = Window:Tab({
+	Title = "dash aimbot",
+	Icon = "crosshair-2", -- optional
+	Locked = false,
+})
+--3 input to add
+local datogKeybind = daTab:Keybind({
+	Title = "Toggle Keybind",
+	Desc = "Keybind to Toggle",
+	Value = "R",
+	Callback = function(v)
+		datoggle = not datoggle
+    	if datoggle then
+		WindUI:Notify({
+    		Title = "Toggled dash aimbot",
+				Content = "Enabled",
+    		Duration = 1, -- seconds
+    		Icon = "circle-alert",
+		})
+		else
+		WindUI:Notify({
+    		Title = "Toggled dash aimbot",
+				Content = "Disabled",
+    		Duration = 1,
+    		Icon = "info",
+		})
+		end
+	end,
+})
+local adToggle = daTab:Keybind({
+	Title = "Toggle Keybind",
+	Desc = "Toggle auto dash when a move is used",
+	Value = "V",
+	Callback = function(v)
+		adtoggle = not adtoggle
+    	if adtoggle then
+		WindUI:Notify({
+    		Title = "Toggled auto dash",
+				Content = "Enabled",
+    		Duration = 1, -- seconds
+    		Icon = "circle-alert",
+		})
+		else
+		WindUI:Notify({
+    		Title = "Toggled auto dash",
+				Content = "Disabled",
+    		Duration = 1,
+    		Icon = "info",
+		})
+		end
+	end,
+})
+local Wtime = daTab:Slider({
+    Title = "delay after dashing (s)",
+    Desc = "idk",
+    
+    Step = 0.05,
+    Value = {
+        Min = 0,
+        Max = 1,
+        Default = 0.1,
+    },
+    Callback = function(value)
+        dwait=value
+    end
+})
+daTab:Slider({
+    Title = "addY",
+    Desc = "idk",
+    
+    Step = 0.1,
+    Value = {
+        Min = 0,
+        Max = 3,
+        Default = 1.5,
+    },
+    Callback = function(value)
+        addY=value
+    end
+})
+daTab:Slider({
+    Title = "asdfghjkl",
+    Desc = "when your distance from the enemy is higher then this, the aimbot will work",
+    
+    Step = 1,
+    Value = {
+        Min = 0,
+        Max = 10,
+        Default = 1,
+    },
+    Callback = function(value)
+        idk=value
+    end
+})
+
+local miscTab = Window:Tab({
+	Title = "Misc",
+	Icon = "wrench", -- optional
+	Locked = false,
+})
+
+miscTab:Toggle({
+	Title = "show Death Counter",
+	Desc = "the player become red when they Death Counter",
+    Icon = "check",
+    Type = "Checkbox",
+    Value = true,
+    Callback = function(state) 
+        if state then
+			if deathcounter then
+				deathcounter:Disconnect()
+			end
+			deathcounter=workspace.Live.DescendantAdded:Connect(function(part)
+				if part.Name=='Counter' then
+					local lh=Instance.new("Highlight",part.Parent)
+					lh.FillTransparency = 0
+					lh.OutlineTransparency = 0
+					lh.OutlineColor=Color3.fromRGB(255,0,0)
+					c=part.Parent.ChildRemoved:Connect(function(p)
+						if p==part then
+							lh:Destroy()
+							c:Disconnect()
+						end
+					end)
+				end
+			end)
+		else
+			if deathcounter then
+				deathcounter:Disconnect()
+			end
+		end
+    end
+})
+miscTab:Toggle({
+	Title = 'Anti Death Counter',
+	Desc = "haha i will kil u with death counter. me: no u",
+    Icon = "check",
+    Type = "Checkbox",
+    Value = false,
+	Callback = function(state) 
+		antideathcounter = state			
+	end
+})
+
+miscTab:Button({
+    Title = "show your current kill streak",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+		notify("Your Current Kill Streak is: "..ply.Character:GetAttribute("CurrentStreak"),"keep going",3)
+    end
+})
+miscTab:Button({
+    Title = "show the Weakest Dummy position",
+    Desc = "",
+    Locked = false,
+    Callback = function()
+		local a=Instance.new('Part',workspace)
+		a.Size=Vector3.new(5,1024,5)
+		a.Anchored=true
+		a.CFrame=workspace.Live['Weakest Dummy'].HumanoidRootPart.CFrame
+		task.wait(5)
+		a:Destroy()
+    end
+})
+miscTab:Toggle({
+	Title = "trash can booster",
+	Desc = "trash can go brrr",
+    Icon = "check",
+    Type = "Checkbox",
+    Value = false,
+	Callback = function(state) 
+		tcanboostToggle = state			
+	end
+})
+miscTab:Slider({
+    Title = "Trash Can boost power",
+    Desc = "higher then 600 for it to work",
+    
+    Step = 10,
+    Value = {
+        Min = 600,
+        Max = 2000,
+        Default = 750,
+    },
+    Callback = function(value)
+        tcanboostpower=value
+    end
+})
+miscTab:Toggle({
+	Title = "Front dash booster",
+	Desc = "dsah go brrr",
+    Icon = "check",
+    Type = "Checkbox",
+    Value = false,
+	Callback = function(state) 
+		dashboostToggle = state			
+	end
+})
+miscTab:Slider({
+    Title = "Front dash boost power",
+    Desc = "dsah go brrr",
+    
+    Step = 10,
+    Value = {
+        Min = 165,
+        Max = 500,
+        Default = 165,
+    },
+    Callback = function(value)
+        dashboostpower=value
+    end
+})
+miscTab:Toggle({
+	Title = "play dodge animation when you perfect block",
+	Desc = "looks cool",
+	Icon = "check",
+	Type = "Checkbox",
+	Value = false,
+	Callback = function(state) 
+		blockdodgeToggle = state			
+	end
+})
+miscTab:Toggle({
+	Title = "play hit marker and sound when you hit an enemy",
+	Desc = "looks cool",
+	Icon = "check",
+	Type = "Checkbox",
+	Value = false,
+	Callback = function(state) 
+		hitmarkerToggle = state	
+	end
+})
+miscTab:Toggle({
+	Title = "Strike your enemy with lightning when you hit them",
+	Desc = "looks cool",
+	Icon = "check",
+	Type = "Checkbox",
+	Value = false,
+	Callback = function(state) 
+		StrikeToggle = state	
+	end
+})
+miscTab:Toggle({
+	Title = "no dash cooldown",
+	Desc = "",
+	Icon = "check",
+	Type = "Checkbox",
+	Value = true,
+	Callback = function(state) 
+		workspace:SetAttribute('NoDashCooldown', state)
+	end
+})
+Window:OnDestroy(function()
+	ply = nil
+	vim = nil
+	
+    aded = false
+    adtoggle = false
+    datoggle = false
+    mrtoggle = false
+    StrikeToggle = false
+    m1resetToggle = false
+    emoteDashToggle = false
+	hitmarkerToggle = false
+	dashboostToggle = false
+	tcanboostToggle = false
+	antideathcounter = false
+	blockdodgeToggle = false
+	tcanthrowdetected = false
+	
+	if attributeconnection then
+		attributeconnection:Disconnect()
+	end
+    if animconnection then
+        animconnection:Disconnect()
+	end
+    if dashConnection then
+		dashConnection:Disconnect()
+		workspace.Gravity=192.8
+	end
+	if hrpChildAddedCon then
+		hrpChildAddedCon:Disconnect()
+	end
+	if deathcounter then
+		deathcounter:Disconnect()
+	end
+	if chrCon then
+		chrCon:Disconnect()
+	end
+    if con1 then
+		con1:Disconnect()
+	end
+	if con2 then
+		con2:Disconnect()
+	end
+    if con3 then
+        con3:Disconnect()
+    end
+	if con4 then
+		con4:Disconnect()
+	end
+end)
+
+
