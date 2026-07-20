@@ -327,9 +327,7 @@ function aimbotanim(at:AnimationTrack)
 		end
 		workspace.Gravity=100
 		local hrp=ply.Character.HumanoidRootPart
-        if dashConnection then
-            dashConnection:Disconnect()
-        end
+
 		dashConnection = false
 		
 
