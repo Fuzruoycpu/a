@@ -335,7 +335,7 @@ function aimbotanim(at:AnimationTrack)
 
 		stoppedCon = at.Stopped:Connect(function()
 			 dashConnection =true
-				dashConnection:Disconnect()
+
 				workspace.Gravity=192.8
 			
             if con1 then
