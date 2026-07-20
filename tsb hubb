@@ -519,15 +519,7 @@ local Window = WindUI:CreateWindow({
 			print("clicked")
 		end,
 	},
-	KeySystem = {
-        Note = "Example Key System. With pandadevelopment.",
-        API = {
-            {
-                Type = "pandadevelopment", -- type
-                ServiceId = "fuzgui", -- service id
-            },
-        },         
-        },
+	
     })
 Window:SetToggleKey(Enum.KeyCode.RightControl)
 
