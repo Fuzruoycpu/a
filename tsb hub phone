@@ -330,11 +330,8 @@ function aimbotanim(at:AnimationTrack)
         if dashConnection then
             dashConnection:Disconnect()
         end
-		dashConnection = game:GetService("RunService").RenderStepped:Connect(function()
-			if target:FindFirstChild("Ragdoll") then
-				lookUp(hrp,target.HumanoidRootPart)
-			end
-		end)
+		dashConnection = false
+		
 
 		stoppedCon = at.Stopped:Connect(function()
 			if dashConnection then
@@ -358,6 +355,11 @@ function aimbotanim(at:AnimationTrack)
 			end
             stoppedCon:disconnect()
 		end)
+		while task.wait() and not dashConnection do
+			if target:FindFirstChild("Ragdoll") then
+				lookUp(hrp,target.HumanoidRootPart)
+			end
+		end
 		
 	end
 end
