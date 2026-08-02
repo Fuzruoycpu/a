@@ -23,7 +23,6 @@ local data={
 
 local TweenService = game:GetService("TweenService")
 local httpService = game:GetService("HttpService")
-local vim = game:GetService("VirtualInputManager")
 local Debris = game:GetService("Debris")
 
 local ply = game.Players.LocalPlayer
@@ -64,6 +63,7 @@ local dwait = 0.1
 local addY = 1.5
 local dd = 150
 local idk = 1
+
 local targetAnimations = {
 	["rbxassetid://10479335397"] = true,
 	["rbxassetid://13380255751"] = true
@@ -74,6 +74,15 @@ local anims = {
 	[3] = "rbxassetid://92546791251633",
 	[4] = "rbxassetid://109088632860488",
 }
+local dashargs = {
+    [1] = {
+    ["Dash"] = Enum.KeyCode.W,
+    ["Goal"] = "KeyPress",
+    ["Key"] = Enum.KeyCode.Q,
+    ["MousePos"] = game.Players.LocalPlayer:GetMouse().Hit
+    }
+}
+
 local hitmarkgui = Instance.new("BillboardGui")
 local hitmarkimage = Instance.new("ImageLabel")
 hitmarkimage.Image = "rbxassetid://113750946560821"
@@ -229,8 +238,7 @@ function fDash()
         ply.HumanoidRootPart.CFrame=fp.CFrame*CFrame.Angles(0,math.rad(80),0)
         fp:Destroy()
         task.wait(0.05)
-        vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
-        vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+        ply.Communicate:FireServer(unpack(dashargs))
         local look = decode(target)
         if look ~=nil then
             local vp1 = workspace.Live:FindFirstChild(look)
@@ -259,39 +267,43 @@ function aimbotanim(at:AnimationTrack)
 	if not datoggle then return end
 	local animId = at.Animation.AnimationId
 	if animId == "rbxassetid://12296113986" then--water guy move 2
-		vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
 		con1 = at:GetMarkerReachedSignal("finalslam"):Connect(function()
-			task.wait(0.05)
-			vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
-			vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
-			vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+			for i=1,2 do 
+				ply.Character.Humanoid.JumpPower=60
+				ply.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+				task.wait(0.025)
+			end			
+			
+			ply.Character.Communicate:FireServer(unpack(dashargs))
 		end)
 	end
 	if animId == "rbxassetid://95034083206292" then
-		vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
 		waitmore=true
 		con2=at:GetMarkerReachedSignal("slam"):Connect(function()
-			task.wait(0.05)
-			ply.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			for i=1,2 do 
+				ply.Character.Humanoid.JumpPower=60
+				ply.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+				task.wait(0.025)
+			end			
 			for i=1,25 do 
-				vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
-				vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+				ply.Character.Communicate:FireServer(unpack(dashargs))
 				task.wait(0.01)
 			end				
-			vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
 			con2:Disconnect()
 		end)
 	end
 	if animId == "rbxassetid://10503381238" and adtoggle then--upper cut
 		con3=at:GetMarkerReachedSignal("hitreg"):Connect(function()
-			task.wait()
-			vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
-			vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+			for i=1,2 do 
+				ply.Character.Humanoid.JumpPower=60
+				ply.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+				task.wait()
+			end			
+			ply.Character.Communicate:FireServer(unpack(dashargs))
 			con3:Disconnect()
 		end)
 	end
 	if animId == "rbxassetid://94638356008696" then--monster water guy move 3
-		vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
 		local slam = 0
 		con4=at:GetMarkerReachedSignal("slam"):Connect(function()
 			slam+=1 
@@ -303,12 +315,10 @@ function aimbotanim(at:AnimationTrack)
 				task.wait()
 			end
 			for i=1,25 do 
-				vim:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
-				vim:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+				ply.Character.Communicate:FireServer(unpack(dashargs))
 				task.wait(0.01)
 			end				
 			con4:Disconnect()
-			vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
 		end)
 	end
 	if targetAnimations[animId] then
@@ -327,15 +337,20 @@ function aimbotanim(at:AnimationTrack)
 		end
 		workspace.Gravity=100
 		local hrp=ply.Character.HumanoidRootPart
-
-		dashConnection = false
-		
+        if dashConnection then
+            dashConnection:Disconnect()
+        end
+		dashConnection = game:GetService("RunService").RenderStepped:Connect(function()
+			if target:FindFirstChild("Ragdoll") then
+				lookUp(hrp,target.HumanoidRootPart)
+			end
+		end)
 
 		stoppedCon = at.Stopped:Connect(function()
-			 dashConnection =true
-
+			if dashConnection then
+				dashConnection:Disconnect()
 				workspace.Gravity=192.8
-			
+			end
             if con1 then
 				con1:Disconnect()
 			end
@@ -353,11 +368,6 @@ function aimbotanim(at:AnimationTrack)
 			end
             stoppedCon:disconnect()
 		end)
-		while task.wait() and not dashConnection do
-			if target:FindFirstChild("Ragdoll") then
-				lookUp(hrp,target.HumanoidRootPart)
-			end
-		end
 		
 	end
 end
